@@ -2,7 +2,7 @@
 
 import React from "react";
 
-interface Props {
+type Props = Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange"> & {
   label?: string;
   value?: string;
   onChange?: (value: string) => void;
@@ -10,8 +10,7 @@ interface Props {
   supporting?: React.ReactNode;
   multiline?: boolean;
   rows?: number;
-  [key: string]: unknown;
-}
+};
 
 export function M3TextField({ label, value, onChange, variant = "outlined", supporting, multiline, rows = 1, ...rest }: Props) {
   const [focus, setFocus] = React.useState(false);
@@ -41,7 +40,7 @@ export function M3TextField({ label, value, onChange, variant = "outlined", supp
             pointerEvents: "none",
           }}>{label}</label>
           {multiline ? (
-            <textarea value={value} onChange={e => onChange?.(e.target.value)}
+            <textarea {...(rest as React.TextareaHTMLAttributes<HTMLTextAreaElement>)} value={value} onChange={e => onChange?.(e.target.value)}
               onFocus={() => setFocus(true)} onBlur={() => setFocus(false)}
               rows={rows}
               style={{
@@ -50,7 +49,7 @@ export function M3TextField({ label, value, onChange, variant = "outlined", supp
                 color: "var(--md-sys-color-on-surface)", resize: "vertical",
               }} />
           ) : (
-            <input type="text" value={value} onChange={e => onChange?.(e.target.value)}
+            <input {...rest} type="text" value={value} onChange={e => onChange?.(e.target.value)}
               onFocus={() => setFocus(true)} onBlur={() => setFocus(false)}
               style={{
                 width: "100%", border: "none", outline: "none", background: "transparent",
@@ -87,7 +86,7 @@ export function M3TextField({ label, value, onChange, variant = "outlined", supp
           transition: "all 150ms cubic-bezier(0.2,0,0,1)",
           pointerEvents: "none",
         }}>{label}</label>
-        <input type="text" value={value} onChange={e => onChange?.(e.target.value)}
+        <input {...rest} type="text" value={value} onChange={e => onChange?.(e.target.value)}
           onFocus={() => setFocus(true)} onBlur={() => setFocus(false)}
           style={{
             width: "100%", border: "none", outline: "none", background: "transparent",
