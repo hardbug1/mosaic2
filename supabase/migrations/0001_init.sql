@@ -112,9 +112,11 @@ create policy "profiles self select" on public.profiles
 create policy "profiles self update" on public.profiles
   for update using (id = auth.uid());
 
--- boards: 멤버만 조회, 본인이 owner로 생성, owner만 수정/삭제
+-- boards: owner 또는 멤버 조회, 본인이 owner로 생성, owner만 수정/삭제
+-- (owner_id 포함: 보드 생성 직후 멤버십 행 추가 전에도 owner가 자기 보드를 읽고
+--  insert().select() 가 동작하도록)
 create policy "boards member select" on public.boards
-  for select using (public.is_board_member(id));
+  for select using (owner_id = auth.uid() or public.is_board_member(id));
 create policy "boards owner insert" on public.boards
   for insert with check (owner_id = auth.uid());
 create policy "boards owner update" on public.boards
