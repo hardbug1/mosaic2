@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "db:push": "set -a; . ./.env.local; set +a; npx supabase db push --db-url \"$SUPABASE_DB_URL\"",
+    "db:migrations": "set -a; . ./.env.local; set +a; npx supabase migration list --db-url \"$SUPABASE_DB_URL\""
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
