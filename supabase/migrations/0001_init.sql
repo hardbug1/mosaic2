@@ -157,7 +157,10 @@ create policy "likes member select" on public.post_likes
     exists (select 1 from public.posts p where p.id = post_id and public.is_board_member(p.board_id))
   );
 create policy "likes self insert" on public.post_likes
-  for insert with check (user_id = auth.uid());
+  for insert with check (
+    user_id = auth.uid()
+    and exists (select 1 from public.posts p where p.id = post_id and public.is_board_member(p.board_id))
+  );
 create policy "likes self delete" on public.post_likes
   for delete using (user_id = auth.uid());
 

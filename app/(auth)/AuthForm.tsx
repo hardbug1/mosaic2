@@ -27,7 +27,9 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) { setError(error.message); setBusy(false); return; }
     }
-    router.push(params.get("redirect") || "/boards");
+    // 내부 경로만 허용 (오픈 리다이렉트 방지)
+    const redirect = params.get("redirect");
+    router.push(redirect && redirect.startsWith("/") ? redirect : "/boards");
     router.refresh();
   };
 
