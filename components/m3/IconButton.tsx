@@ -6,7 +6,6 @@ type IconButtonVariant = "standard" | "filled" | "tonal";
 
 interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   icon: string;
-  onClick?: () => void;
   selected?: boolean;
   tooltip?: string;
   size?: number;

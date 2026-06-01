@@ -10,8 +10,6 @@ interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   size?: ButtonSize;
   icon?: string;
   children?: React.ReactNode;
-  onClick?: () => void;
-  disabled?: boolean;
   fullWidth?: boolean;
 }
 
