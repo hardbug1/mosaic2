@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { BoardScheme } from "@/lib/time";
@@ -701,9 +702,9 @@ function AvatarMenu({
               border: "1px solid var(--md-sys-color-outline-variant)",
             }}
           >
-            <a
-              href="#"
-              onClick={(e) => e.preventDefault()}
+            <Link
+              href="/settings"
+              onClick={() => setOpen(false)}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -719,7 +720,7 @@ function AvatarMenu({
                 settings
               </span>
               설정
-            </a>
+            </Link>
             <div
               style={{
                 height: 1,
