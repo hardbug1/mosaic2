@@ -1,15 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { TINTS } from "@/lib/constants";
 import type { Post } from "@/lib/posts";
+import { createClient } from "@/lib/supabase/client";
 
 // ---- media placeholders (no external images; drawn with gradients + icons) ----
-function ImageBlock({ kind }: { kind?: string | null }) {
-  const grads: Record<string, string> = {
-    chart: "linear-gradient(135deg,#386A20,#7FB069)",
-    photo: "linear-gradient(135deg,#6750A4,#A23BB0)",
-  };
+function ImagePlaceholder() {
   return (
     <div
       style={{
@@ -17,22 +14,70 @@ function ImageBlock({ kind }: { kind?: string | null }) {
         borderRadius: 10,
         overflow: "hidden",
         position: "relative",
-        background: (kind && grads[kind]) || grads.photo,
+        background: "linear-gradient(135deg,#6750A4,#A23BB0)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
       }}
     >
-      {kind === "chart" ? (
-        <MiniChart />
-      ) : (
-        <span
-          className="md-icon"
-          style={{ fontSize: 40, color: "rgba(255,255,255,0.9)" }}
-        >
-          image
-        </span>
-      )}
+      <span
+        className="md-icon"
+        style={{ fontSize: 40, color: "rgba(255,255,255,0.9)" }}
+      >
+        image
+      </span>
+    </div>
+  );
+}
+
+/**
+ * Renders a real image via a signed URL fetched on mount,
+ * falling back to the gradient placeholder while loading or on error.
+ */
+function ImageBlock({ mediaPath }: { mediaPath?: string | null }) {
+  const [signedUrl, setSignedUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!mediaPath) return;
+    let cancelled = false;
+    const supabase = createClient();
+    supabase.storage
+      .from("board-media")
+      .createSignedUrl(mediaPath, 3600)
+      .then(({ data }) => {
+        if (!cancelled && data?.signedUrl) {
+          setSignedUrl(data.signedUrl);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [mediaPath]);
+
+  if (!mediaPath || !signedUrl) {
+    return <ImagePlaceholder />;
+  }
+
+  return (
+    <div
+      style={{
+        height: 132,
+        borderRadius: 10,
+        overflow: "hidden",
+        position: "relative",
+      }}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={signedUrl}
+        alt=""
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          display: "block",
+        }}
+      />
     </div>
   );
 }
@@ -190,13 +235,28 @@ function FileChip({
   title,
   size,
   ext,
+  mediaPath,
 }: {
   title?: string | null;
   size?: string | null;
   ext?: string | null;
+  mediaPath?: string | null;
 }) {
+  const handleClick = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!mediaPath) return;
+    const supabase = createClient();
+    const { data } = await supabase.storage
+      .from("board-media")
+      .createSignedUrl(mediaPath, 3600);
+    if (data?.signedUrl) {
+      window.open(data.signedUrl, "_blank", "noreferrer");
+    }
+  };
+
   return (
     <div
+      onClick={mediaPath ? handleClick : undefined}
       style={{
         display: "flex",
         gap: 10,
@@ -205,6 +265,7 @@ function FileChip({
         borderRadius: 10,
         background: "var(--chip-bg)",
         boxShadow: "inset 0 0 0 1px var(--md-sys-color-outline-variant)",
+        cursor: mediaPath ? "pointer" : "default",
       }}
     >
       <div
@@ -368,7 +429,7 @@ export default function PostCard({
         ...style,
       }}
     >
-      {post.type === "image" && <ImageBlock kind={post.mediaPath} />}
+      {post.type === "image" && <ImageBlock mediaPath={post.mediaPath} />}
       {post.type === "video" && <VideoBlock dur={null} url={post.url} />}
 
       {post.title && post.type !== "link" && post.type !== "file" && (
@@ -404,6 +465,7 @@ export default function PostCard({
           title={post.fileName}
           size={post.fileSize}
           ext={post.fileExt}
+          mediaPath={post.mediaPath}
         />
       )}
 

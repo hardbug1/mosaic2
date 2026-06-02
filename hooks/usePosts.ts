@@ -13,6 +13,10 @@ export type NewPostInput = {
   text?: string | null;
   url?: string | null;
   domain?: string | null;
+  media_path?: string | null;
+  file_name?: string | null;
+  file_size?: string | null;
+  file_ext?: string | null;
   x?: number;
   y?: number;
   rot?: number;

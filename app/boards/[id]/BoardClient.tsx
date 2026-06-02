@@ -175,6 +175,7 @@ export function BoardClient({
       <Composer
         open={composer.open}
         defaultSection={composer.section}
+        boardId={boardId}
         onClose={() => setComposer((c) => ({ ...c, open: false }))}
         onCreate={async (input) => {
           await createPost(input);
