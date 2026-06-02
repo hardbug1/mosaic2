@@ -1,5 +1,27 @@
 // views.jsx — TopBar + ColumnsView, GridView, CanvasView
 
+// Brand mark: a mosaic of colored tiles (inline, so it renders without a font).
+function MosaicMark({ size = 40 }) {
+  const tiles = [
+    { c: "#6750A4", col: "1 / 3", row: "1 / 2" }, // wide top
+    { c: "#A23BB0", col: "1 / 2", row: "2 / 4" }, // tall left
+    { c: "#00639B", col: "2 / 3", row: "2 / 3" }, // small
+    { c: "#386A20", col: "2 / 3", row: "3 / 4" }, // small
+  ];
+  const gap = Math.round(size * 0.1);
+  const r = Math.round(size * 0.13);
+  return (
+    <div style={{
+      width: size, height: size, flexShrink: 0,
+      display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr 1fr", gap,
+    }}>
+      {tiles.map((t, i) => (
+        <div key={i} style={{ gridColumn: t.col, gridRow: t.row, background: t.c, borderRadius: r }} />
+      ))}
+    </div>
+  );
+}
+
 function PresenceStack({ onShare }) {
   const live = window.LIVE.map((id) => window.PEOPLE[id]);
   const shown = live.slice(0, 4);
@@ -116,13 +138,14 @@ function TopBar({ onAdd, query, setQuery, authorFilter, setAuthorFilter, layout,
       {/* row 1 */}
       <div style={{ display: "flex", alignItems: "center", gap: 16, padding: "12px 20px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
-          <div style={{
-            width: 44, height: 44, borderRadius: 12, flexShrink: 0,
-            background: "linear-gradient(135deg,#6750A4,#A23BB0)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
-            <span className="md-icon is-filled" style={{ fontSize: 24, color: "#fff" }}>dashboard</span>
-          </div>
+          <a href="모자이크 — 내 보드.html" title="내 보드로" style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none", minWidth: 0 }}>
+            <MosaicMark size={36} />
+            <span style={{
+              fontFamily: "var(--md-sys-typescale-brand-font)", fontWeight: 800, fontSize: 21,
+              letterSpacing: "-0.4px", color: "var(--md-sys-color-on-surface)", whiteSpace: "nowrap",
+            }}>Mosaic</span>
+          </a>
+          <div style={{ width: 1, height: 30, background: "var(--md-sys-color-outline-variant)", margin: "0 4px" }} />
           <div style={{ minWidth: 0 }}>
             <div className="md-title-large" style={{ color: "var(--md-sys-color-on-surface)", display: "flex", alignItems: "center", gap: 8 }}>
               2분기 제품 회고
@@ -157,7 +180,7 @@ function TopBar({ onAdd, query, setQuery, authorFilter, setAuthorFilter, layout,
 }
 
 // ---------- COLUMNS ----------
-function ColumnsView({ posts, dense, dragId, setDragId, onCardDrop, onToggleLike, onAdd }) {
+function ColumnsView({ posts, dense, dragId, setDragId, onCardDrop, onToggleLike, onAdd, onOpen }) {
   const [overCol, setOverCol] = React.useState(null);
   return (
     <div style={{ height: "100%", overflow: "auto", padding: 20 }}>
@@ -191,7 +214,7 @@ function ColumnsView({ posts, dense, dragId, setDragId, onCardDrop, onToggleLike
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={(e) => { e.stopPropagation(); onCardDrop(p.id, sec.id); }}
                     style={{ opacity: dragId === p.id ? 0.4 : 1, cursor: "grab" }}>
-                    <PostCard post={p} dense={dense} onToggleLike={onToggleLike} />
+                    <PostCard post={p} dense={dense} onToggleLike={onToggleLike} onOpen={onOpen} />
                   </div>
                 ))}
                 {colPosts.length === 0 && (
@@ -209,7 +232,7 @@ function ColumnsView({ posts, dense, dragId, setDragId, onCardDrop, onToggleLike
 }
 
 // ---------- GRID (masonry) ----------
-function GridView({ posts, dense, dragId, setDragId, onCardDrop, onToggleLike }) {
+function GridView({ posts, dense, dragId, setDragId, onCardDrop, onToggleLike, onOpen }) {
   return (
     <div style={{ height: "100%", overflow: "auto", padding: 20 }}>
       <div style={{ columnWidth: 260, columnGap: 16 }}>
@@ -220,7 +243,7 @@ function GridView({ posts, dense, dragId, setDragId, onCardDrop, onToggleLike })
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => { e.stopPropagation(); onCardDrop(p.id, null); }}
             style={{ breakInside: "avoid", marginBottom: 16, opacity: dragId === p.id ? 0.4 : 1, cursor: "grab" }}>
-            <PostCard post={p} dense={dense} onToggleLike={onToggleLike} />
+            <PostCard post={p} dense={dense} onToggleLike={onToggleLike} onOpen={onOpen} />
           </div>
         ))}
         {posts.length === 0 && <EmptyState />}
@@ -230,7 +253,7 @@ function GridView({ posts, dense, dragId, setDragId, onCardDrop, onToggleLike })
 }
 
 // ---------- CANVAS (free move) ----------
-const CanvasView = React.forwardRef(function CanvasView({ posts, dense, onPointerDown, onToggleLike, draggingId }, ref) {
+const CanvasView = React.forwardRef(function CanvasView({ posts, dense, onPointerDown, onToggleLike, draggingId, onOpen }, ref) {
   return (
     <div ref={ref} style={{
       height: "100%", overflow: "auto", position: "relative",
@@ -249,7 +272,7 @@ const CanvasView = React.forwardRef(function CanvasView({ posts, dense, onPointe
               touchAction: "none",
               zIndex: draggingId === p.id ? 50 : 1,
             }}>
-            <PostCard post={p} dense={dense} onToggleLike={onToggleLike} ghost={draggingId === p.id} />
+            <PostCard post={p} dense={dense} onToggleLike={onToggleLike} ghost={draggingId === p.id} onOpen={onOpen} />
           </div>
         ))}
         {posts.length === 0 && <div style={{ position: "absolute", top: 80, left: 0, right: 0 }}><EmptyState /></div>}

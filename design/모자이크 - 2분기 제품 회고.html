@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>모자이크 — 2분기 제품 회고</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-25..200&display=block">
+<link rel="stylesheet" href="colors_and_type.css">
+<style>
+  html, body, #root { height: 100%; margin: 0; }
+  body { background: var(--md-sys-color-surface); color: var(--md-sys-color-on-surface); overflow: hidden; }
+  * { box-sizing: border-box; }
+  ::-webkit-scrollbar { width: 12px; height: 12px; }
+  ::-webkit-scrollbar-thumb { background: var(--md-sys-color-outline-variant); border-radius: 9999px; border: 3px solid var(--md-sys-color-surface); }
+  ::-webkit-scrollbar-track { background: transparent; }
+  button { font-family: var(--md-sys-typescale-plain-font); }
+  @keyframes slideIn { from { transform: translateX(24px); opacity: 0.4; } to { transform: translateX(0); opacity: 1; } }
+
+  /* ── Card tints — light + dark variants for readability in both themes ── */
+  :root { --chip-bg: rgba(0,0,0,0.045); }
+  [data-theme="dark"] { --chip-bg: rgba(255,255,255,0.07); }
+
+  .tint-butter { --tint-bg: #FFF3D6; --tint-line: #EAD9A6; }
+  .tint-blush  { --tint-bg: #FFE0E6; --tint-line: #F2C0CB; }
+  .tint-lilac  { --tint-bg: #EADDFF; --tint-line: #D3C0F0; }
+  .tint-mint   { --tint-bg: #D7F2E0; --tint-line: #B4DEC2; }
+  .tint-sky    { --tint-bg: #D9ECFF; --tint-line: #B6D6F2; }
+  .tint-paper  { --tint-bg: #FFFFFF; --tint-line: #E2DDE7; }
+
+  /* Deep, desaturated tones so light card text stays readable on dark. */
+  [data-theme="dark"] .tint-butter { --tint-bg: #3A3118; --tint-line: #564913; }
+  [data-theme="dark"] .tint-blush  { --tint-bg: #3D2A2E; --tint-line: #5A3A40; }
+  [data-theme="dark"] .tint-lilac  { --tint-bg: #2F2A40; --tint-line: #463E63; }
+  [data-theme="dark"] .tint-mint   { --tint-bg: #1F3327; --tint-line: #2E4A39; }
+  [data-theme="dark"] .tint-sky    { --tint-bg: #1B2E3E; --tint-line: #294257; }
+  [data-theme="dark"] .tint-paper  { --tint-bg: #26242B; --tint-line: #46434C; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" src="components/tweaks-panel.jsx"></script>
+  <script type="text/babel" src="components/Button.jsx"></script>
+  <script type="text/babel" src="components/IconButton.jsx"></script>
+  <script type="text/babel" src="components/Atoms.jsx"></script>
+  <script type="text/babel" src="components/data.jsx"></script>
+  <script type="text/babel" src="components/board.jsx"></script>
+  <script type="text/babel" src="components/composer.jsx"></script>
+  <script type="text/babel" src="components/detail.jsx"></script>
+  <script type="text/babel" src="components/share.jsx"></script>
+  <script type="text/babel" src="components/views.jsx"></script>
+  <script type="text/babel" src="components/App.jsx"></script>
+</body>
+</html>

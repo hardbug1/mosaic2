@@ -16,6 +16,11 @@ function App() {
   const [snack, setSnack] = React.useState(null);
   const [dragId, setDragId] = React.useState(null);
   const [cursors, setCursors] = React.useState({});
+  const [openPost, setOpenPost] = React.useState(null);
+  const [shareOpen, setShareOpen] = React.useState(false);
+
+  // keep the open detail panel in sync with the latest post data (likes etc.)
+  const livePost = openPost ? posts.find((p) => p.id === openPost.id) || null : null;
 
   // ---- dark mode ----
   React.useEffect(() => {
@@ -120,21 +125,21 @@ function App() {
         query={query} setQuery={setQuery}
         authorFilter={authorFilter} setAuthorFilter={setAuthorFilter}
         layout={t.layout} setLayout={(v) => setTweak("layout", v)}
-        onShare={() => setSnack({ msg: "초대 링크가 복사되었습니다" })}
+        onShare={() => setShareOpen(true)}
       />
 
       <div style={{ flex: 1, minHeight: 0, position: "relative", overflow: "hidden" }}>
         {t.layout === "columns" && (
           <ColumnsView posts={visible} dense={dense} dragId={dragId} setDragId={setDragId}
-            onCardDrop={onCardDrop} onToggleLike={toggleLike} onAdd={openComposer} />
+            onCardDrop={onCardDrop} onToggleLike={toggleLike} onAdd={openComposer} onOpen={setOpenPost} />
         )}
         {t.layout === "grid" && (
           <GridView posts={visible} dense={dense} dragId={dragId} setDragId={setDragId}
-            onCardDrop={onCardDrop} onToggleLike={toggleLike} />
+            onCardDrop={onCardDrop} onToggleLike={toggleLike} onOpen={setOpenPost} />
         )}
         {t.layout === "canvas" && (
           <CanvasView ref={canvasRef} posts={visible} dense={dense}
-            onPointerDown={onCanvasPointerDown} onToggleLike={toggleLike} draggingId={dragState.current?.id} />
+            onPointerDown={onCanvasPointerDown} onToggleLike={toggleLike} draggingId={dragState.current?.id} onOpen={setOpenPost} />
         )}
       </div>
 
@@ -156,6 +161,9 @@ function App() {
 
       <Composer open={composer.open} defaultSection={composer.section}
         sections={window.SECTIONS} onClose={() => setComposer({ open: false })} onCreate={createPost} />
+
+      <PostDetail post={livePost} onClose={() => setOpenPost(null)} onToggleLike={toggleLike} />
+      <ShareDialog open={shareOpen} onClose={() => setShareOpen(false)} onToast={(msg) => setSnack({ msg })} />
 
       <M3Snackbar open={!!snack} message={snack?.msg} actionLabel="확인" onClose={() => setSnack(null)} />
 

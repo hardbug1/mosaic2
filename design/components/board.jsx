@@ -59,7 +59,7 @@ function LinkPreview({ title, domain }) {
   return (
     <div style={{
       display: "flex", gap: 10, alignItems: "center", padding: 10, borderRadius: 10,
-      background: "rgba(0,0,0,0.04)", boxShadow: "inset 0 0 0 1px var(--md-sys-color-outline-variant)",
+      background: "var(--chip-bg)", boxShadow: "inset 0 0 0 1px var(--md-sys-color-outline-variant)",
     }}>
       <div style={{
         width: 40, height: 40, borderRadius: 8, flexShrink: 0,
@@ -83,7 +83,7 @@ function FileChip({ title, size, ext }) {
   return (
     <div style={{
       display: "flex", gap: 10, alignItems: "center", padding: 10, borderRadius: 10,
-      background: "rgba(0,0,0,0.04)", boxShadow: "inset 0 0 0 1px var(--md-sys-color-outline-variant)",
+      background: "var(--chip-bg)", boxShadow: "inset 0 0 0 1px var(--md-sys-color-outline-variant)",
     }}>
       <div style={{
         width: 40, height: 40, borderRadius: 8, flexShrink: 0,
@@ -135,10 +135,11 @@ function PostCard({ post, dense, onToggleLike, onOpen, dragHandleProps, style, g
   return (
     <div
       {...dragHandleProps}
+      className={`tint tint-${post.tint}`}
       onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
       onClick={() => onOpen && onOpen(post)}
       style={{
-        background: tint.bg,
+        background: "var(--tint-bg)",
         borderRadius: 16,
         boxShadow: ghost
           ? "var(--md-sys-elevation-level4)"
@@ -146,7 +147,7 @@ function PostCard({ post, dense, onToggleLike, onOpen, dragHandleProps, style, g
         padding: dense ? 12 : 16,
         display: "flex", flexDirection: "column", gap: dense ? 8 : 10,
         cursor: "pointer", position: "relative",
-        outline: `1px solid ${tint.line}`,
+        outline: "1px solid var(--tint-line)",
         transition: "box-shadow 160ms var(--md-sys-motion-easing-standard), transform 120ms var(--md-sys-motion-easing-standard)",
         transform: hover && !ghost ? "translateY(-2px)" : "none",
         ...style,
