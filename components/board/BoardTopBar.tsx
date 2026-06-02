@@ -335,6 +335,8 @@ export interface BoardTopBarProps {
   online: PresenceMember[];
   postCount: number;
   currentUserId: string;
+  unreadCount?: number;
+  onNotifications?: () => void;
 }
 
 export default function BoardTopBar({
@@ -350,6 +352,8 @@ export default function BoardTopBar({
   online,
   postCount,
   currentUserId,
+  unreadCount = 0,
+  onNotifications,
 }: BoardTopBarProps) {
   return (
     <header
@@ -444,6 +448,54 @@ export default function BoardTopBar({
           <SearchField query={query} setQuery={setQuery} />
         </div>
         <PresenceStack online={online} onShare={onShare} />
+        {/* Notifications bell */}
+        <button
+          type="button"
+          title="알림"
+          onClick={onNotifications}
+          style={{
+            position: "relative",
+            width: 40,
+            height: 40,
+            borderRadius: 9999,
+            border: "none",
+            cursor: onNotifications ? "pointer" : "default",
+            background: "transparent",
+            color: "var(--md-sys-color-on-surface-variant)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}
+        >
+          <span className="md-icon" style={{ fontSize: 24 }}>
+            notifications
+          </span>
+          {unreadCount > 0 && (
+            <span
+              style={{
+                position: "absolute",
+                top: 6,
+                right: 6,
+                minWidth: 16,
+                height: 16,
+                borderRadius: 9999,
+                background: "var(--md-sys-color-error)",
+                color: "var(--md-sys-color-on-error)",
+                fontSize: 10,
+                fontWeight: 700,
+                fontFamily: "var(--md-sys-typescale-plain-font)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "0 3px",
+                pointerEvents: "none",
+              }}
+            >
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </span>
+          )}
+        </button>
       </div>
 
       {/* row 2 — toolbar */}

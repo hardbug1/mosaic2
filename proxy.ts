@@ -6,7 +6,7 @@ export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
   const isAuthPage = path.startsWith("/login") || path.startsWith("/signup");
-  const isProtected = path.startsWith("/boards") || path.startsWith("/settings");
+  const isProtected = path.startsWith("/boards") || path.startsWith("/settings") || path.startsWith("/notifications");
 
   if (isProtected && !user) {
     const url = request.nextUrl.clone();

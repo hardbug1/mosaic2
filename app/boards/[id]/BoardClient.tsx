@@ -3,8 +3,10 @@
 import React, { useMemo, useState } from "react";
 import { usePosts } from "@/hooks/usePosts";
 import { usePresence, type PresenceMember } from "@/hooks/usePresence";
+import { useNotifications } from "@/hooks/useNotifications";
 import { filterPosts, type Post } from "@/lib/posts";
 import BoardTopBar from "@/components/board/BoardTopBar";
+import { useRouter } from "next/navigation";
 import ColumnsView from "@/components/board/views/ColumnsView";
 import GridView from "@/components/board/views/GridView";
 import CanvasView from "@/components/board/views/CanvasView";
@@ -55,6 +57,9 @@ export function BoardClient({
   const meMemo = useMemo(() => me, [me.id]); // eslint-disable-line react-hooks/exhaustive-deps
   const online = usePresence(boardId, meMemo);
 
+  const router = useRouter();
+  const { unreadCount } = useNotifications(me.id);
+
   // Share dialog state
   const [shareOpen, setShareOpen] = useState(false);
 
@@ -103,6 +108,8 @@ export function BoardClient({
         online={online}
         postCount={posts.length}
         currentUserId={me.id}
+        unreadCount={unreadCount}
+        onNotifications={() => router.push("/notifications")}
       />
 
       {/* Content area */}
