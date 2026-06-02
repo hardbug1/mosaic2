@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // 개발 중 화면에 뜨는 Next.js 인디케이터(로고 배지) 숨김
+  devIndicators: false,
 };
 
 export default nextConfig;

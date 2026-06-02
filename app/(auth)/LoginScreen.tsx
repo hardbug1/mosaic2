@@ -159,60 +159,20 @@ function Field({
   paddingRight?: number;
   autoComplete?: string;
 }) {
-  const [focus, setFocus] = React.useState(false);
-  const filled = value.length > 0;
-  const labelUp = focus || filled;
-
+  // 라벨 플로팅을 CSS `:placeholder-shown` 으로 처리 → 브라우저 자동완성에도
+  // 라벨이 정확히 위로 떠서 값과 겹치지 않는다. (placeholder=" " 가 핵심)
   return (
-    <div
-      style={{
-        position: "relative",
-        borderRadius: 4,
-        padding: "14px 16px",
-        paddingRight: paddingRight ?? 16,
-        boxShadow: focus
-          ? "inset 0 0 0 2px var(--md-sys-color-primary)"
-          : "inset 0 0 0 1px var(--md-sys-color-outline)",
-        transition: "box-shadow 100ms linear",
-      }}
-    >
-      <label
-        style={{
-          position: "absolute",
-          top: labelUp ? -8 : 14,
-          left: labelUp ? 12 : 16,
-          padding: labelUp ? "0 4px" : 0,
-          background: labelUp ? "var(--md-sys-color-surface)" : "transparent",
-          fontFamily: "var(--md-sys-typescale-plain-font)",
-          fontSize: labelUp ? 12 : 16,
-          color: focus
-            ? "var(--md-sys-color-primary)"
-            : "var(--md-sys-color-on-surface-variant)",
-          transition: "all 150ms cubic-bezier(0.2,0,0,1)",
-          pointerEvents: "none",
-          whiteSpace: "nowrap",
-        }}
-      >
-        {label}
-      </label>
+    <div className="lsf">
       <input
+        className="lsf-input"
         type={type}
         value={value}
+        placeholder=" "
         autoComplete={autoComplete}
         onChange={(e) => onChange(e.target.value)}
-        onFocus={() => setFocus(true)}
-        onBlur={() => setFocus(false)}
-        style={{
-          width: "100%",
-          border: "none",
-          outline: "none",
-          background: "transparent",
-          fontFamily: "var(--md-sys-typescale-plain-font)",
-          fontSize: 16,
-          lineHeight: "24px",
-          color: "var(--md-sys-color-on-surface)",
-        }}
+        style={{ paddingRight: paddingRight ?? 16 }}
       />
+      <label className="lsf-label">{label}</label>
     </div>
   );
 }
@@ -312,6 +272,50 @@ export function LoginScreen({ mode }: { mode: "login" | "signup" }) {
           justify-content: center;
           padding: 40px 32px;
           background: var(--md-sys-color-surface);
+        }
+        .lsf {
+          position: relative;
+          border-radius: 4px;
+          box-shadow: inset 0 0 0 1px var(--md-sys-color-outline);
+          transition: box-shadow 100ms linear;
+        }
+        .lsf:has(.lsf-input:focus) {
+          box-shadow: inset 0 0 0 2px var(--md-sys-color-primary);
+        }
+        .lsf-input {
+          width: 100%;
+          border: none;
+          outline: none;
+          background: transparent;
+          padding: 14px 16px;
+          border-radius: 4px;
+          font-family: var(--md-sys-typescale-plain-font);
+          font-size: 16px;
+          line-height: 24px;
+          color: var(--md-sys-color-on-surface);
+        }
+        .lsf-label {
+          position: absolute;
+          top: 14px;
+          left: 16px;
+          font-family: var(--md-sys-typescale-plain-font);
+          font-size: 16px;
+          color: var(--md-sys-color-on-surface-variant);
+          pointer-events: none;
+          white-space: nowrap;
+          transition: all 150ms cubic-bezier(0.2,0,0,1);
+        }
+        /* 자동완성 포함: 값이 있거나(:not(:placeholder-shown)) 포커스 시 라벨이 위로 */
+        .lsf:has(.lsf-input:focus) .lsf-label,
+        .lsf:has(.lsf-input:not(:placeholder-shown)) .lsf-label {
+          top: -8px;
+          left: 12px;
+          font-size: 12px;
+          padding: 0 4px;
+          background: var(--md-sys-color-surface);
+        }
+        .lsf:has(.lsf-input:focus) .lsf-label {
+          color: var(--md-sys-color-primary);
         }
         @media (max-width: 768px) {
           .ls-brand { display: none; }
