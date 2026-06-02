@@ -107,7 +107,6 @@ export function Composer({ open, defaultSection, onClose, onCreate }: Props) {
 
   return (
     <div
-      onClick={onClose}
       style={{
         position: "fixed",
         inset: 0,
@@ -120,7 +119,6 @@ export function Composer({ open, defaultSection, onClose, onCreate }: Props) {
       }}
     >
       <div
-        onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%",
           maxWidth: 480,
