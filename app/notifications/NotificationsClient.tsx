@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useNotifications, type AppNotification } from "@/hooks/useNotifications";
 import { relativeKo } from "@/lib/time";
+import MobileNav from "@/components/MobileNav";
 
 // ---- MosaicMark brand icon ----
 function MosaicMark({ size = 30 }: { size?: number }) {
@@ -209,7 +210,7 @@ function NotifRow({
 // ---- Main client component ----
 export default function NotificationsClient({ userId }: { userId: string }) {
   const router = useRouter();
-  const { notifications, markAllRead, markRead } = useNotifications(userId);
+  const { notifications, unreadCount, markAllRead, markRead } = useNotifications(userId);
 
   // Auto mark all read on mount
   useEffect(() => {
@@ -225,6 +226,18 @@ export default function NotificationsClient({ userId }: { userId: string }) {
   }
 
   return (
+    <>
+    <style>{`
+      @media (max-width: 768px) {
+        .notif-header {
+          padding-left: 12px !important;
+          padding-right: 12px !important;
+        }
+        .notif-main {
+          padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important;
+        }
+      }
+    `}</style>
     <div
       style={{
         minHeight: "100vh",
@@ -235,6 +248,7 @@ export default function NotificationsClient({ userId }: { userId: string }) {
     >
       {/* Top bar */}
       <header
+        className="notif-header"
         style={{
           position: "sticky",
           top: 0,
@@ -319,6 +333,7 @@ export default function NotificationsClient({ userId }: { userId: string }) {
 
       {/* Notification list */}
       <main
+        className="notif-main"
         style={{
           flex: 1,
           maxWidth: 600,
@@ -353,5 +368,9 @@ export default function NotificationsClient({ userId }: { userId: string }) {
         )}
       </main>
     </div>
+
+    {/* Mobile bottom nav — hidden on desktop via CSS in MobileNav */}
+    <MobileNav active="notifications" unreadCount={unreadCount} />
+    </>
   );
 }

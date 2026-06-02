@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { BoardScheme } from "@/lib/time";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useNotifications } from "@/hooks/useNotifications";
+import MobileNav from "@/components/MobileNav";
 
 /* ─────────────────────────────────────────────────────────────────
    Types
@@ -836,6 +837,20 @@ export function BoardsClient({
         .boards-topbar-search input::placeholder {
           color: var(--md-sys-color-on-surface-variant);
         }
+        @media (max-width: 768px) {
+          .boards-topbar-search {
+            display: none !important;
+          }
+          .boards-header {
+            padding-left: 16px !important;
+            padding-right: 16px !important;
+          }
+          .boards-main {
+            padding-left: 16px !important;
+            padding-right: 16px !important;
+            padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important;
+          }
+        }
       `}</style>
 
       <div
@@ -846,6 +861,7 @@ export function BoardsClient({
       >
         {/* ── Top bar ── */}
         <header
+          className="boards-header"
           style={{
             position: "sticky",
             top: 0,
@@ -878,7 +894,7 @@ export function BoardsClient({
 
           <div style={{ flex: 1 }} />
 
-          {/* Search bar — visual only */}
+          {/* Search bar — visual only; hidden on mobile via CSS */}
           <div
             className="boards-topbar-search"
             style={{
@@ -974,6 +990,7 @@ export function BoardsClient({
 
         {/* ── Main content ── */}
         <main
+          className="boards-main"
           style={{
             maxWidth: 1160,
             margin: "0 auto",
@@ -1183,6 +1200,9 @@ export function BoardsClient({
         onClose={() => setCreating(false)}
         createBoard={createBoard}
       />
+
+      {/* Mobile bottom nav — hidden on desktop via CSS in MobileNav */}
+      <MobileNav active="boards" unreadCount={unreadCount} />
     </>
   );
 }

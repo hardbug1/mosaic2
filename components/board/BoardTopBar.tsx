@@ -363,8 +363,39 @@ export default function BoardTopBar({
         borderBottom: "1px solid var(--md-sys-color-outline-variant)",
       }}
     >
+      <style>{`
+        @media (max-width: 768px) {
+          .board-topbar-row1 {
+            padding-left: 12px !important;
+            padding-right: 12px !important;
+            gap: 8px !important;
+            flex-wrap: wrap;
+          }
+          .board-topbar-search-wrap {
+            order: 10;
+            flex-basis: 100%;
+            justify-content: stretch !important;
+          }
+          .board-topbar-search-wrap > * {
+            min-width: unset !important;
+            max-width: unset !important;
+            width: 100% !important;
+          }
+          .board-topbar-presence {
+            display: none !important;
+          }
+          .board-topbar-row2 {
+            padding-left: 12px !important;
+            padding-right: 12px !important;
+          }
+          .board-topbar-notifications {
+            display: none !important;
+          }
+        }
+      `}</style>
       {/* row 1 */}
       <div
+        className="board-topbar-row1"
         style={{
           display: "flex",
           alignItems: "center",
@@ -443,16 +474,20 @@ export default function BoardTopBar({
           </div>
         </div>
         <div
+          className="board-topbar-search-wrap"
           style={{ flex: 1, display: "flex", justifyContent: "center" }}
         >
           <SearchField query={query} setQuery={setQuery} />
         </div>
-        <PresenceStack online={online} onShare={onShare} />
-        {/* Notifications bell */}
+        <div className="board-topbar-presence">
+          <PresenceStack online={online} onShare={onShare} />
+        </div>
+        {/* Notifications bell — hidden on mobile (MobileNav has it) */}
         <button
           type="button"
           title="알림"
           onClick={onNotifications}
+          className="board-topbar-notifications"
           style={{
             position: "relative",
             width: 40,
@@ -500,6 +535,7 @@ export default function BoardTopBar({
 
       {/* row 2 — toolbar */}
       <div
+        className="board-topbar-row2"
         style={{
           display: "flex",
           alignItems: "center",

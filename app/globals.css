@@ -333,3 +333,17 @@ html, body { height: 100%; margin: 0; }
 ::-webkit-scrollbar-thumb { background: var(--md-sys-color-outline-variant); border-radius: 9999px; border: 3px solid var(--md-sys-color-surface); }
 ::-webkit-scrollbar-track { background: transparent; }
 button { font-family: var(--md-sys-typescale-plain-font); }
+
+/* ============================================================
+   Mobile responsive utilities (≤768px)
+   ============================================================ */
+@media (max-width: 768px) {
+  /* Hide on mobile */
+  .hide-on-mobile { display: none !important; }
+  /* Show only on mobile */
+  .show-on-mobile { display: block !important; }
+  /* Reduce horizontal padding on mobile */
+  .mobile-px { padding-left: 16px !important; padding-right: 16px !important; }
+  /* Bottom padding to clear the fixed mobile nav (64px + safe area) */
+  .mobile-nav-clearance { padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)) !important; }
+}

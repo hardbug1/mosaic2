@@ -7,6 +7,8 @@ import { createClient } from "@/lib/supabase/client";
 import { deriveInitials } from "@/lib/profile";
 import { PALETTE } from "@/lib/constants";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import MobileNav from "@/components/MobileNav";
+import { useNotifications } from "@/hooks/useNotifications";
 
 /* ─────────────────────────────────────────────────────────────────
    MosaicMark logo
@@ -167,6 +169,7 @@ export function SettingsClient({
 }: Props) {
   const router = useRouter();
   const supabase = createClient();
+  const { unreadCount } = useNotifications(userId);
 
   const [section, setSection] = useState<SectionId>("profile");
   const [name, setName] = useState(initialName);
@@ -200,9 +203,42 @@ export function SettingsClient({
   };
 
   return (
+    <>
+    <style>{`
+      @media (max-width: 768px) {
+        .settings-header {
+          padding-left: 16px !important;
+          padding-right: 16px !important;
+          flex-wrap: wrap;
+          gap: 8px !important;
+        }
+        .settings-back-link {
+          display: none !important;
+        }
+        .settings-body {
+          grid-template-columns: 1fr !important;
+          padding-left: 16px !important;
+          padding-right: 16px !important;
+          padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important;
+        }
+        .settings-sidenav {
+          position: static !important;
+          flex-direction: row !important;
+          flex-wrap: wrap;
+          gap: 6px !important;
+        }
+        .settings-sidenav button {
+          height: 36px !important;
+          padding: 0 12px !important;
+          border-radius: 9999px !important;
+          font-size: 13px !important;
+        }
+      }
+    `}</style>
     <div style={{ minHeight: "100%", background: "var(--md-sys-color-surface)" }}>
       {/* ── Top bar ── */}
       <header
+        className="settings-header"
         style={{
           position: "sticky",
           top: 0,
@@ -304,9 +340,10 @@ export function SettingsClient({
           </button>
         )}
 
-        {/* Back link affordance */}
+        {/* Back link affordance — hidden on mobile (use bottom nav instead) */}
         <Link
           href="/boards"
+          className="settings-back-link"
           style={{
             display: "inline-flex",
             alignItems: "center",
@@ -330,6 +367,7 @@ export function SettingsClient({
 
       {/* ── Body (sidebar + content) ── */}
       <div
+        className="settings-body"
         style={{
           maxWidth: 1000,
           margin: "0 auto",
@@ -342,6 +380,7 @@ export function SettingsClient({
       >
         {/* Side nav */}
         <nav
+          className="settings-sidenav"
           style={{
             position: "sticky",
             top: 92,
@@ -647,5 +686,9 @@ export function SettingsClient({
         </div>
       </div>
     </div>
+
+    {/* Mobile bottom nav — hidden on desktop via CSS in MobileNav */}
+    <MobileNav active="settings" unreadCount={unreadCount} />
+    </>
   );
 }

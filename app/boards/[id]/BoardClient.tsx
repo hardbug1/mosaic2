@@ -14,6 +14,7 @@ import { EmptyBoard } from "@/components/board/EmptyBoard";
 import { Composer } from "@/components/board/Composer";
 import PostDetail from "@/components/board/PostDetail";
 import { ShareDialog } from "@/components/board/ShareDialog";
+import MobileNav from "@/components/MobileNav";
 
 type Layout = "columns" | "grid" | "canvas";
 
@@ -86,6 +87,17 @@ export function BoardClient({
     setComposer({ open: true, section });
 
   return (
+    <>
+    <style>{`
+      @media (max-width: 768px) {
+        .board-fab {
+          bottom: 88px !important;
+        }
+        .board-content-area {
+          padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+        }
+      }
+    `}</style>
     <div
       style={{
         display: "flex",
@@ -152,6 +164,7 @@ export function BoardClient({
       {/* Floating "새 게시물" FAB — bottom-right pill button */}
       <button
         onClick={() => openComposer("well")}
+        className="board-fab"
         style={{
           position: "fixed",
           bottom: 28,
@@ -212,5 +225,9 @@ export function BoardClient({
         />
       )}
     </div>
+
+    {/* Mobile bottom nav — hidden on desktop via CSS in MobileNav */}
+    <MobileNav active="boards" unreadCount={unreadCount} />
+    </>
   );
 }
