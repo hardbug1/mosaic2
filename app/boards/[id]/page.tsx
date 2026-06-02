@@ -26,7 +26,7 @@ export default async function BoardPage({
   const { data: rows } = await supabase
     .from("posts")
     .select(
-      "*, author:profiles!author_id(name, initials, color), post_likes(user_id)",
+      "*, author:profiles!author_id(name, initials, color), post_likes(user_id), comments(count)",
     )
     .eq("board_id", id)
     .order("created_at", { ascending: true });

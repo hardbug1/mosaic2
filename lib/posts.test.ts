@@ -98,8 +98,20 @@ describe("rowToPost", () => {
     expect(post.rot).toBe(5);
   });
 
-  it("sets comments to 0 always", () => {
+  it("sets comments to 0 when comments aggregate is missing", () => {
     const post = rowToPost(baseRow, "user-1");
+    expect(post.comments).toBe(0);
+  });
+
+  it("reads comment count from comments[0].count aggregate", () => {
+    const row: PostRow = { ...baseRow, comments: [{ count: 3 }] };
+    const post = rowToPost(row, "user-1");
+    expect(post.comments).toBe(3);
+  });
+
+  it("sets comments to 0 when comments array is empty", () => {
+    const row: PostRow = { ...baseRow, comments: [] };
+    const post = rowToPost(row, "user-1");
     expect(post.comments).toBe(0);
   });
 });

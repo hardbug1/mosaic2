@@ -48,6 +48,8 @@ export type PostRow = {
   created_at: string;
   author: Author | null;
   post_likes: { user_id: string }[];
+  /** PostgREST aggregate shape from `comments(count)` */
+  comments?: { count: number }[];
 };
 
 const FALLBACK_AUTHOR: Author = {
@@ -88,7 +90,7 @@ export function rowToPost(row: PostRow, currentUserId: string): Post {
     author: row.author ?? FALLBACK_AUTHOR,
     likes,
     likedByMe,
-    comments: 0,
+    comments: row.comments?.[0]?.count ?? 0,
   };
 }
 

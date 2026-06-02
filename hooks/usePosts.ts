@@ -189,9 +189,56 @@ export function usePosts(
       )
       .subscribe();
 
+    // --- comments channel ---
+    // Track comment inserts/deletes to keep comment counts on cards live.
+    const commentsChannel = supabase
+      .channel(`comments:${boardId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "comments",
+          filter: `board_id=eq.${boardId}`,
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (payload: any) => {
+          const row = payload.new as { post_id: string };
+          setPosts((prev) =>
+            prev.map((p) =>
+              p.id === row.post_id
+                ? { ...p, comments: p.comments + 1 }
+                : p,
+            ),
+          );
+        },
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "comments",
+          filter: `board_id=eq.${boardId}`,
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (payload: any) => {
+          const row = payload.old as { post_id: string };
+          setPosts((prev) =>
+            prev.map((p) =>
+              p.id === row.post_id
+                ? { ...p, comments: Math.max(0, p.comments - 1) }
+                : p,
+            ),
+          );
+        },
+      )
+      .subscribe();
+
     return () => {
       supabase.removeChannel(postsChannel);
       supabase.removeChannel(likesChannel);
+      supabase.removeChannel(commentsChannel);
     };
     // currentUserId is intentionally stable per board session; boardId drives re-sub
     // eslint-disable-next-line react-hooks/exhaustive-deps
