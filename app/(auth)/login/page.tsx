@@ -1,10 +1,12 @@
 import { Suspense } from "react";
-import { AuthForm } from "../AuthForm";
+import { LoginScreen } from "../LoginScreen";
 
 export default function LoginPage() {
   return (
-    <main style={{ display: "grid", placeItems: "center", height: "100%" }}>
-      <Suspense><AuthForm mode="login" /></Suspense>
+    <main style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      <Suspense>
+        <LoginScreen mode="login" />
+      </Suspense>
     </main>
   );
 }
