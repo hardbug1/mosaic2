@@ -1,4 +1,5 @@
 import type { Author } from "@/lib/posts";
+import { firstOf } from "@/lib/normalize";
 
 export type Comment = {
   id: string;
@@ -17,7 +18,8 @@ export type CommentRow = {
   author_id: string;
   text: string;
   created_at: string;
-  author?: { name: string; initials: string; color: string } | null;
+  // 조인은 객체 또는 배열로 올 수 있음(firstOf로 정규화)
+  author?: Author | Author[] | null;
 };
 
 const FALLBACK_AUTHOR: Author = {
@@ -34,6 +36,6 @@ export function rowToComment(row: CommentRow): Comment {
     authorId: row.author_id,
     text: row.text,
     createdAt: row.created_at,
-    author: row.author ?? FALLBACK_AUTHOR,
+    author: firstOf(row.author) ?? FALLBACK_AUTHOR,
   };
 }

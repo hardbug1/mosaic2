@@ -1,4 +1,5 @@
 import type { PostType, SectionId } from "@/lib/constants";
+import { firstOf } from "@/lib/normalize";
 
 export type Author = { name: string; initials: string; color: string };
 
@@ -46,7 +47,8 @@ export type PostRow = {
   y: number | null;
   rot: number | null;
   created_at: string;
-  author: Author | null;
+  // 조인은 객체 또는 배열로 올 수 있음(firstOf로 정규화)
+  author: Author | Author[] | null;
   post_likes: { user_id: string }[];
   /** PostgREST aggregate shape from `comments(count)` */
   comments?: { count: number }[];
@@ -87,7 +89,7 @@ export function rowToPost(row: PostRow, currentUserId: string): Post {
     y: yVal,
     rot: rotVal,
     createdAt: row.created_at,
-    author: row.author ?? FALLBACK_AUTHOR,
+    author: firstOf(row.author) ?? FALLBACK_AUTHOR,
     likes,
     likedByMe,
     comments: row.comments?.[0]?.count ?? 0,

@@ -131,3 +131,85 @@ describe("RLS 보안: H3 초대 합류는 viewer 권한", () => {
     expect(error).not.toBeNull();
   });
 });
+
+describe("RLS 보안: M2 post_likes board_id 일관성", () => {
+  let owner: Awaited<ReturnType<typeof signUpUser>>;
+  let otherBoard: string;
+  let boardId: string;
+  let postId: string;
+
+  beforeAll(async () => {
+    owner = await signUpUser("좋아요");
+
+    const b = await owner.client.from("boards").insert({ title: "L", owner_id: owner.id }).select().single();
+    boardId = b.data!.id;
+    await owner.client.from("board_members").insert({ board_id: boardId, user_id: owner.id, role: "owner" });
+
+    const b2 = await owner.client.from("boards").insert({ title: "L2", owner_id: owner.id }).select().single();
+    otherBoard = b2.data!.id;
+    await owner.client.from("board_members").insert({ board_id: otherBoard, user_id: owner.id, role: "owner" });
+
+    const p = await owner.client.from("posts")
+      .insert({ board_id: boardId, author_id: owner.id, type: "text", section: "well", text: "x" })
+      .select().single();
+    postId = p.data!.id;
+  }, 30000);
+
+  it("올바른 board_id로 좋아요가 추가된다", async () => {
+    const { error } = await owner.client.from("post_likes")
+      .insert({ post_id: postId, user_id: owner.id, board_id: boardId });
+    expect(error).toBeNull();
+  });
+
+  it("게시물의 실제 board와 다른 board_id로는 좋아요가 거부된다", async () => {
+    const { error } = await owner.client.from("post_likes")
+      .insert({ post_id: postId, user_id: owner.id, board_id: otherBoard });
+    expect(error).not.toBeNull();
+  });
+});
+
+describe("RLS 보안: M6 알림은 read 컬럼만 수정 가능", () => {
+  let owner: Awaited<ReturnType<typeof signUpUser>>;
+  let editor: Awaited<ReturnType<typeof signUpUser>>;
+  let boardId: string;
+  let notifId: string;
+
+  beforeAll(async () => {
+    owner = await signUpUser("수신자");
+    editor = await signUpUser("댓글러");
+
+    const b = await owner.client.from("boards").insert({ title: "알림", owner_id: owner.id }).select().single();
+    boardId = b.data!.id;
+    await owner.client.from("board_members").insert({ board_id: boardId, user_id: owner.id, role: "owner" });
+    await owner.client.from("board_members").insert({ board_id: boardId, user_id: editor.id, role: "editor" });
+
+    const p = await owner.client.from("posts")
+      .insert({ board_id: boardId, author_id: owner.id, type: "text", section: "well", text: "내 글" })
+      .select().single();
+
+    // editor가 댓글 → 트리거가 owner에게 알림 생성
+    const { error: cErr } = await editor.client.from("comments")
+      .insert({ post_id: p.data!.id, board_id: boardId, author_id: editor.id, text: "안녕" });
+    expect(cErr).toBeNull();
+
+    // owner 알림 조회 (트리거 반영까지 약간 대기)
+    let rows: { id: string }[] = [];
+    for (let i = 0; i < 5 && rows.length === 0; i++) {
+      const { data } = await owner.client.from("notifications").select("id").eq("user_id", owner.id);
+      rows = data ?? [];
+      if (rows.length === 0) await new Promise((r) => setTimeout(r, 300));
+    }
+    notifId = rows[0]?.id;
+  }, 30000);
+
+  it("수신자는 read를 true로 바꿀 수 있다", async () => {
+    expect(notifId).toBeTruthy();
+    const { error } = await owner.client.from("notifications").update({ read: true }).eq("id", notifId);
+    expect(error).toBeNull();
+  });
+
+  it("수신자라도 type 컬럼은 수정할 수 없다", async () => {
+    const { error } = await owner.client.from("notifications").update({ type: "like" }).eq("id", notifId);
+    expect(error).not.toBeNull();
+  });
+});

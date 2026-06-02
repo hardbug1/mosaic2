@@ -38,6 +38,9 @@ function getExt(name: string): string {
   return parts.length > 1 ? parts[parts.length - 1].toLowerCase() : "bin";
 }
 
+/** 업로드 허용 최대 크기 (M5: 무제한 업로드 방지). */
+const MAX_UPLOAD_BYTES = 25 * 1024 * 1024; // 25 MB
+
 export function Composer({ open, defaultSection, boardId, onClose, onCreate }: Props) {
   const [type, setType] = useState("text");
   const [text, setText] = useState("");
@@ -146,6 +149,12 @@ export function Composer({ open, defaultSection, boardId, onClose, onCreate }: P
         rot,
       };
     } else if ((type === "image" || type === "file") && pickedFile) {
+      if (pickedFile.size > MAX_UPLOAD_BYTES) {
+        setUploadError(
+          `파일이 너무 큽니다 (최대 ${MAX_UPLOAD_BYTES / (1024 * 1024)}MB).`,
+        );
+        return;
+      }
       const ext = getExt(pickedFile.name);
       const path = `${boardId}/${crypto.randomUUID()}.${ext}`;
 
@@ -188,6 +197,8 @@ export function Composer({ open, defaultSection, boardId, onClose, onCreate }: P
         await onCreate(input);
         onClose();
       } catch {
+        // M5: 게시물 저장 실패 시 업로드된 orphan object 보상 삭제
+        await supabase.storage.from("board-media").remove([path]);
         setUploadError("게시물 저장에 실패했습니다.");
       } finally {
         setSubmitting(false);

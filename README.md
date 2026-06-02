@@ -105,6 +105,7 @@
 | 0008 | profiles.bio + notifications + 댓글/좋아요 알림 트리거 |
 | 0009 | 보안 수정 C1(게시물 board_id/author_id 불변)·H1(owner 모델 보호)·H3(초대=viewer)·M1(definer 실행권한) |
 | 0010 | 보안 수정 H2(presence private 채널 + realtime.messages RLS) |
+| 0011 | 리뷰 Medium/Low — M2(post_likes.board_id 비정규화)·M5(storage 경로 안전 파서)·M6(알림 read 컬럼만)·L1(updated_at 트리거) |
 
 ```bash
 npm run db:push        # 미적용 마이그레이션을 클라우드에 적용

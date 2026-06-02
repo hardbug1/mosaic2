@@ -197,7 +197,8 @@ export function LoginScreen({ mode }: { mode: "login" | "signup" }) {
 
   const redirectTo = () => {
     const r = params.get("redirect");
-    return r && r.startsWith("/") ? r : "/boards";
+    // protocol-relative('//evil.com') open redirect 방지
+    return r && r.startsWith("/") && !r.startsWith("//") ? r : "/boards";
   };
 
   const submit = async (e: React.FormEvent) => {
@@ -235,9 +236,13 @@ export function LoginScreen({ mode }: { mode: "login" | "signup" }) {
   const handleOAuth = async (provider: "google" | "kakao") => {
     try {
       const supabase = createClient();
+      // M7: 초대 링크 등에서 넘어온 redirect 목적지를 OAuth 후에도 보존
+      const next = encodeURIComponent(redirectTo());
       const { error: err } = await supabase.auth.signInWithOAuth({
         provider,
-        options: { redirectTo: window.location.origin + "/auth/callback?next=/boards" },
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?next=${next}`,
+        },
       });
       if (err) setError(err.message);
     } catch (e: unknown) {

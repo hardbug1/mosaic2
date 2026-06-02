@@ -160,13 +160,17 @@ export function usePosts(
       .subscribe();
 
     // --- likes channel ---
-    // post_likes has no board_id column, so we can't filter by board here.
-    // We guard by checking whether the affected post exists in state.
+    // M2: post_likes.board_id 비정규화 → 보드 단위로만 구독(다른 보드 like 이벤트 미수신).
     const likesChannel = supabase
       .channel(`likes:${boardId}`)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "post_likes" },
+        {
+          event: "*",
+          schema: "public",
+          table: "post_likes",
+          filter: `board_id=eq.${boardId}`,
+        },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (payload: any) => {
           if (payload.eventType === "INSERT") {
@@ -296,12 +300,28 @@ export function usePosts(
 
       if (error) {
         console.error("[usePosts] movePost error:", error);
-        // Best-effort revert
-        if (previous) {
-          const snapshot = previous;
+        // M4: stale snapshot 복원 대신 서버 권위 값으로 재조정 (동시 변경 보존)
+        const { data } = await supabase
+          .from("posts")
+          .select("x, y, section")
+          .eq("id", id)
+          .maybeSingle();
+        if (data) {
           setPosts((prev) =>
-            prev.map((p) => (p.id === id ? snapshot : p)),
+            prev.map((p) =>
+              p.id === id
+                ? {
+                    ...p,
+                    x: data.x != null ? Number(data.x) : p.x,
+                    y: data.y != null ? Number(data.y) : p.y,
+                    section: (data.section as SectionId) ?? p.section,
+                  }
+                : p,
+            ),
           );
+        } else if (previous) {
+          const snapshot = previous;
+          setPosts((prev) => prev.map((p) => (p.id === id ? snapshot : p)));
         }
         throw error;
       }
@@ -361,10 +381,11 @@ export function usePosts(
       let error: { message: string } | null = null;
 
       if (!wasLiked) {
-        // Now liking
+        // Now liking — board_id 포함(M2 RLS/Realtime 필터 일관성)
         const result = await supabase.from("post_likes").insert({
           post_id: id,
           user_id: currentUserId,
+          board_id: boardId,
         });
         error = result.error;
       } else {
@@ -379,15 +400,32 @@ export function usePosts(
 
       if (error) {
         console.error("[usePosts] toggleLike error:", error);
-        // Revert optimistic flip
-        const snapshot = originalPost;
+        // M4: 낙관적 플립을 stale 복원하지 않고 서버 권위 like 상태로 재조정
+        const { count } = await supabase
+          .from("post_likes")
+          .select("*", { count: "exact", head: true })
+          .eq("post_id", id);
+        const { data: mine } = await supabase
+          .from("post_likes")
+          .select("user_id")
+          .eq("post_id", id)
+          .eq("user_id", currentUserId)
+          .maybeSingle();
         setPosts((prev) =>
-          prev.map((p) => (p.id === id ? snapshot : p)),
+          prev.map((p) =>
+            p.id === id
+              ? {
+                  ...p,
+                  likes: count ?? p.likes,
+                  likedByMe: !!mine,
+                }
+              : p,
+          ),
         );
         throw error;
       }
     },
-    [currentUserId],
+    [currentUserId, boardId],
   );
 
   return { posts, createPost, movePost, removePost, toggleLike };

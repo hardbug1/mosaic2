@@ -45,9 +45,19 @@ export function useComments(
         if (error) {
           console.error("[useComments] fetch error:", error);
         }
-        setComments(
-          (data as CommentRow[] ?? []).map((row) => rowToComment(row)),
+        const fetched = ((data as CommentRow[]) ?? []).map((row) =>
+          rowToComment(row),
         );
+        // M3: 구독이 fetch보다 먼저 댓글을 넣었을 수 있으므로 덮어쓰지 않고 id 기준 병합
+        setComments((prev) => {
+          const byId = new Map<string, Comment>();
+          for (const c of fetched) byId.set(c.id, c);
+          // 아직 서버에 없는 낙관적(temp-) 항목과, 구독으로 먼저 들어온 항목 보존
+          for (const c of prev) if (!byId.has(c.id)) byId.set(c.id, c);
+          return [...byId.values()].sort((a, b) =>
+            a.createdAt.localeCompare(b.createdAt),
+          );
+        });
         setLoading(false);
       });
 

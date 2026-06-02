@@ -13,9 +13,18 @@
 | **H2** presence RLS 미보호 | ✅ 수정 | `0010` presence private 채널 전환 + `realtime.messages` RLS. ⚠️ 2-브라우저 스모크 권장 |
 | **H3** 초대 링크 권한 불일치 | ✅ 수정 | `0009` 초대 합류 기본 `viewer`(RPC). 회귀 테스트 |
 | **M1** definer 실행권한 과다 | ✅ 수정 | `0009` `revoke ... from public` + authenticated만 grant + 미인증 차단 |
-| M2~M7, L1~L3 | ⏳ 미처리 | 후속 과제 |
+| **M2** likes 전역 구독 | ✅ 수정 | `0011` `post_likes.board_id` 비정규화 + RLS 일관성 + 클라 보드 필터 구독. 회귀 테스트 |
+| **M3** fetch/realtime race | ✅ 수정 | `useComments`·`useNotifications` 초기 fetch를 id 기준 병합(덮어쓰기 제거) |
+| **M4** 낙관적 롤백 stale | ✅ 수정 | `usePosts` movePost/toggleLike 실패 시 stale 복원 대신 서버 권위값 재조정 |
+| **M5** storage 경로/orphan | ✅ 수정 | `0011` `storage_board_id()` 안전 파서, Composer 저장 실패 시 보상 삭제 + 25MB 제한 |
+| **M6** 알림 컬럼 무제한 수정 | ✅ 수정 | `0011` `grant update(read)`만 + `type` check constraint. 회귀 테스트 |
+| **M7** OAuth next 유실 | ✅ 수정 | `LoginScreen` redirect 검증값을 OAuth `next`에 전달 (+ `//` open-redirect 방지) |
+| **L1** updated_at 미갱신 | ✅ 수정 | `0011` set_updated_at 트리거 + 게시물 활동 시 board.updated_at bump |
+| **L2** join shape 취약 | ✅ 수정 | `lib/normalize.ts` `firstOf()`로 posts/comments/notifications 정규화 |
+| **L3** RLS 테스트 협소 | ◐ 보강 | C1·H1·H3·M2·M6 회귀 13개 추가(`tests/rls-security.test.ts`). storage/presence는 미커버 |
 
-> 검증: `npm run test` 41개 통과(보안 회귀 9개 포함), `npx tsc --noEmit` clean, `npm run db:push`로 0009·0010 적용 완료.
+> 검증: `npm run test` 45개 통과(보안 회귀 13개 포함), `npx tsc --noEmit` clean, `npm run db:push`로 0009·0010·0011 적용 완료.
+> 미커버: H2 2-브라우저 presence 스모크, storage 경로 RLS 통합 테스트.
 
 ---
 
