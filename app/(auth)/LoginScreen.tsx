@@ -237,7 +237,7 @@ export function LoginScreen({ mode }: { mode: "login" | "signup" }) {
       const supabase = createClient();
       const { error: err } = await supabase.auth.signInWithOAuth({
         provider,
-        options: { redirectTo: window.location.origin + "/boards" },
+        options: { redirectTo: window.location.origin + "/auth/callback?next=/boards" },
       });
       if (err) setError(err.message);
     } catch (e: unknown) {

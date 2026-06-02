@@ -4,6 +4,7 @@ import React, { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { BoardScheme } from "@/lib/time";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 /* ─────────────────────────────────────────────────────────────────
    Types
@@ -911,6 +912,9 @@ export function BoardsClient({
               }}
             />
           </div>
+
+          {/* Theme toggle */}
+          <ThemeToggle />
 
           {/* Notifications bell — visual only */}
           <button
