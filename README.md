@@ -91,7 +91,7 @@
 
 ## 마이그레이션
 
-`supabase/migrations/` (0001~0008). 적용은 **`npm run db:push`** (수동 SQL 붙여넣기 불필요).
+`supabase/migrations/` (0001~0010). 적용은 **`npm run db:push`** (수동 SQL 붙여넣기 불필요).
 
 | # | 내용 |
 |---|---|
@@ -103,6 +103,8 @@
 | 0006 | 3단계 역할 + 권한 RLS + 초대 RPC (self-join 갭 해소) |
 | 0007 | Storage 버킷 + RLS |
 | 0008 | profiles.bio + notifications + 댓글/좋아요 알림 트리거 |
+| 0009 | 보안 수정 C1(게시물 board_id/author_id 불변)·H1(owner 모델 보호)·H3(초대=viewer)·M1(definer 실행권한) |
+| 0010 | 보안 수정 H2(presence private 채널 + realtime.messages RLS) |
 
 ```bash
 npm run db:push        # 미적용 마이그레이션을 클라우드에 적용

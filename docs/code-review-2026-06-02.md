@@ -4,6 +4,19 @@
 
 분석 관점: ① 보안/RLS ② 실시간 훅 버그/경쟁상태 ③ Next.js 16 규약 ④ 데이터 정합성 ⑤ 우선순위 정리.
 
+## 수정 현황 (2026-06-02)
+
+| 항목 | 상태 | 조치 |
+|---|---|---|
+| **C1** 게시물 교차 보드 주입 | ✅ 수정 | `0009` board_id/author_id 불변 트리거 + with check. 회귀 테스트 `tests/rls-security.test.ts` |
+| **H1** admin이 owner 모델 파괴 | ✅ 수정 | `0009` owner 역할 삽입/승격 차단, owner 행 강등·추방 차단. 회귀 테스트 |
+| **H2** presence RLS 미보호 | ✅ 수정 | `0010` presence private 채널 전환 + `realtime.messages` RLS. ⚠️ 2-브라우저 스모크 권장 |
+| **H3** 초대 링크 권한 불일치 | ✅ 수정 | `0009` 초대 합류 기본 `viewer`(RPC). 회귀 테스트 |
+| **M1** definer 실행권한 과다 | ✅ 수정 | `0009` `revoke ... from public` + authenticated만 grant + 미인증 차단 |
+| M2~M7, L1~L3 | ⏳ 미처리 | 후속 과제 |
+
+> 검증: `npm run test` 41개 통과(보안 회귀 9개 포함), `npx tsc --noEmit` clean, `npm run db:push`로 0009·0010 적용 완료.
+
 ---
 
 ## 🔴 Critical

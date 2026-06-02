@@ -19,8 +19,10 @@ export function usePresence(
   useEffect(() => {
     const supabase = createClient();
 
+    // private: true → Realtime Authorization(realtime.messages RLS)로 보드 멤버만 접근.
+    // 비멤버의 presence 열람/스푸핑 차단 (migration 0010).
     const channel = supabase.channel(`presence:${boardId}`, {
-      config: { presence: { key: me.id } },
+      config: { private: true, presence: { key: me.id } },
     });
 
     channel.on("presence", { event: "sync" }, () => {
