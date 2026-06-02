@@ -2,14 +2,14 @@
  * Relative Korean time helper — converts an ISO timestamp to a
  * human-readable Korean relative string.
  */
-export function relativeKo(isoOrDate: string | Date): string {
+export function relativeKo(isoOrDate: string | Date, justNow = "방금 전"): string {
   const date =
     typeof isoOrDate === "string" ? new Date(isoOrDate) : isoOrDate;
   const now = Date.now();
   const diffMs = now - date.getTime();
   const diffSec = Math.floor(diffMs / 1000);
 
-  if (diffSec < 60) return "방금 편집함";
+  if (diffSec < 60) return justNow;
   if (diffSec < 3600) {
     const mins = Math.floor(diffSec / 60);
     return `${mins}분 전`;

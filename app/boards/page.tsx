@@ -76,7 +76,7 @@ export default async function BoardsPage() {
       title: b.title as string,
       members,
       posts: postCount,
-      updated: relativeKo(b.updated_at as string),
+      updated: relativeKo(b.updated_at as string, "방금 편집함"),
       starred: favSet.has(b.id as string),
       live: 0,
       scheme: pickScheme(b.id as string),
