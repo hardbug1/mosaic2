@@ -10,6 +10,7 @@ import GridView from "@/components/board/views/GridView";
 import CanvasView from "@/components/board/views/CanvasView";
 import { EmptyBoard } from "@/components/board/EmptyBoard";
 import { Composer } from "@/components/board/Composer";
+import PostDetail from "@/components/board/PostDetail";
 
 type Layout = "columns" | "grid" | "canvas";
 
@@ -46,6 +47,9 @@ export function BoardClient({
   // Memoize `me` by identity so usePresence doesn't re-subscribe on every render
   const meMemo = useMemo(() => me, [me.id]); // eslint-disable-line react-hooks/exhaustive-deps
   const online = usePresence(boardId, meMemo);
+
+  // Detail modal state
+  const [detailPost, setDetailPost] = useState<Post | null>(null);
 
   // View / filter state
   const [layout, setLayout] = useState<Layout>("columns");
@@ -107,6 +111,7 @@ export function BoardClient({
             onToggleLike={toggleLike}
             onCardDrop={(dragId, section) => movePost(dragId, { section })}
             onAdd={(section) => openComposer(section)}
+            onOpen={(p) => setDetailPost(p)}
           />
         ) : layout === "grid" ? (
           <GridView
@@ -116,6 +121,7 @@ export function BoardClient({
             onCardDrop={(_dragId) => {
               // Grid reorder is visual-only — no persistent section/order column yet
             }}
+            onOpen={(p) => setDetailPost(p)}
           />
         ) : (
           <CanvasView
@@ -123,6 +129,7 @@ export function BoardClient({
             currentUserId={me.id}
             onToggleLike={toggleLike}
             onMove={(id, x, y) => movePost(id, { x, y })}
+            onOpen={(p) => setDetailPost(p)}
           />
         )}
       </div>
@@ -165,6 +172,17 @@ export function BoardClient({
           await createPost(input);
         }}
       />
+
+      {detailPost && (
+        <PostDetail
+          post={detailPost}
+          me={me}
+          currentUserId={me.id}
+          boardId={boardId}
+          membersById={membersById}
+          onClose={() => setDetailPost(null)}
+        />
+      )}
     </div>
   );
 }
