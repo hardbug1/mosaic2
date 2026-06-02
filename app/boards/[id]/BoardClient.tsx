@@ -11,8 +11,11 @@ import CanvasView from "@/components/board/views/CanvasView";
 import { EmptyBoard } from "@/components/board/EmptyBoard";
 import { Composer } from "@/components/board/Composer";
 import PostDetail from "@/components/board/PostDetail";
+import { ShareDialog } from "@/components/board/ShareDialog";
 
 type Layout = "columns" | "grid" | "canvas";
+
+type BoardMemberRole = "owner" | "admin" | "editor" | "viewer";
 
 interface BoardClientProps {
   boardId: string;
@@ -20,6 +23,8 @@ interface BoardClientProps {
   initialPosts: Post[];
   members: PresenceMember[];
   me: PresenceMember;
+  inviteToken: string;
+  currentUserRole: BoardMemberRole;
 }
 
 export function BoardClient({
@@ -28,6 +33,8 @@ export function BoardClient({
   initialPosts,
   members,
   me,
+  inviteToken,
+  currentUserRole,
 }: BoardClientProps) {
   // Stable membersById map for usePosts realtime callbacks
   const membersById = useMemo(
@@ -47,6 +54,9 @@ export function BoardClient({
   // Memoize `me` by identity so usePresence doesn't re-subscribe on every render
   const meMemo = useMemo(() => me, [me.id]); // eslint-disable-line react-hooks/exhaustive-deps
   const online = usePresence(boardId, meMemo);
+
+  // Share dialog state
+  const [shareOpen, setShareOpen] = useState(false);
 
   // Detail modal state
   const [detailPost, setDetailPost] = useState<Post | null>(null);
@@ -88,9 +98,7 @@ export function BoardClient({
         setAuthorFilter={setAuthorFilter}
         layout={layout}
         setLayout={setLayout}
-        onShare={() => {
-          /* TODO: share dialog */
-        }}
+        onShare={() => setShareOpen(true)}
         onAdd={() => openComposer("well")}
         online={online}
         postCount={posts.length}
@@ -181,6 +189,18 @@ export function BoardClient({
           boardId={boardId}
           membersById={membersById}
           onClose={() => setDetailPost(null)}
+        />
+      )}
+
+      {shareOpen && (
+        <ShareDialog
+          open
+          boardId={boardId}
+          boardTitle={boardTitle}
+          inviteToken={inviteToken}
+          currentUserId={me.id}
+          currentUserRole={currentUserRole}
+          onClose={() => setShareOpen(false)}
         />
       )}
     </div>

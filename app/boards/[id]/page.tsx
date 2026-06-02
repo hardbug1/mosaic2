@@ -18,7 +18,7 @@ export default async function BoardPage({
 
   const { data: board } = await supabase
     .from("boards")
-    .select("id, title")
+    .select("id, title, invite_token")
     .eq("id", id)
     .single();
   if (!board) notFound(); // RLS blocks non-members → 404
@@ -33,7 +33,7 @@ export default async function BoardPage({
 
   const { data: memberRows } = await supabase
     .from("board_members")
-    .select("profiles(id, name, initials, color)")
+    .select("role, user_id, profiles(id, name, initials, color)")
     .eq("board_id", id);
 
   const { data: me } = await supabase
@@ -46,6 +46,7 @@ export default async function BoardPage({
 
   // Supabase infers board_members.profiles as array (many-to-one join returns array[]).
   // We cast via any and flatten — each row has exactly one profile.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const members = (memberRows ?? [])
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .flatMap((m: any) => {
@@ -59,6 +60,13 @@ export default async function BoardPage({
         Boolean(p && p.id),
     );
 
+  // Derive currentUserRole from the member row matching the logged-in user
+  type BoardRole = "owner" | "admin" | "editor" | "viewer";
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const myMemberRow = (memberRows ?? []).find((m: any) => m.user_id === user.id);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const currentUserRole: BoardRole = (myMemberRow as any)?.role ?? "viewer";
+
   return (
     <BoardClient
       boardId={board.id}
@@ -66,6 +74,8 @@ export default async function BoardPage({
       initialPosts={posts}
       members={members}
       me={me ?? { id: user.id, name: "나", initials: "나", color: "#6750A4" }}
+      inviteToken={board.invite_token ?? ""}
+      currentUserRole={currentUserRole}
     />
   );
 }
