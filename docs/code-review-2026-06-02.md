@@ -10,7 +10,7 @@
 |---|---|---|
 | **C1** 게시물 교차 보드 주입 | ✅ 수정 | `0009` board_id/author_id 불변 트리거 + with check. 회귀 테스트 `tests/rls-security.test.ts` |
 | **H1** admin이 owner 모델 파괴 | ✅ 수정 | `0009` owner 역할 삽입/승격 차단, owner 행 강등·추방 차단. 회귀 테스트 |
-| **H2** presence RLS 미보호 | ✅ 수정 | `0010` presence private 채널 전환 + `realtime.messages` RLS. ⚠️ 2-브라우저 스모크 권장 |
+| **H2** presence RLS 미보호 | ✅ 수정·검증 | `0010` presence private 채널 + `realtime.messages` RLS. 통합 테스트: 멤버 SUBSCRIBED / 비멤버 CHANNEL_ERROR(`tests/storage-presence.test.ts`) |
 | **H3** 초대 링크 권한 불일치 | ✅ 수정 | `0009` 초대 합류 기본 `viewer`(RPC). 회귀 테스트 |
 | **M1** definer 실행권한 과다 | ✅ 수정 | `0009` `revoke ... from public` + authenticated만 grant + 미인증 차단 |
 | **M2** likes 전역 구독 | ✅ 수정 | `0011` `post_likes.board_id` 비정규화 + RLS 일관성 + 클라 보드 필터 구독. 회귀 테스트 |
@@ -21,10 +21,10 @@
 | **M7** OAuth next 유실 | ✅ 수정 | `LoginScreen` redirect 검증값을 OAuth `next`에 전달 (+ `//` open-redirect 방지) |
 | **L1** updated_at 미갱신 | ✅ 수정 | `0011` set_updated_at 트리거 + 게시물 활동 시 board.updated_at bump |
 | **L2** join shape 취약 | ✅ 수정 | `lib/normalize.ts` `firstOf()`로 posts/comments/notifications 정규화 |
-| **L3** RLS 테스트 협소 | ◐ 보강 | C1·H1·H3·M2·M6 회귀 13개 추가(`tests/rls-security.test.ts`). storage/presence는 미커버 |
+| **L3** RLS 테스트 협소 | ✅ 보강 | C1·H1·H3·M2·M6 회귀 13개 + storage/presence 통합 7개 추가 |
 
-> 검증: `npm run test` 45개 통과(보안 회귀 13개 포함), `npx tsc --noEmit` clean, `npm run db:push`로 0009·0010·0011 적용 완료.
-> 미커버: H2 2-브라우저 presence 스모크, storage 경로 RLS 통합 테스트.
+> 검증: `npm run test` **52개 통과**(보안 회귀 13개 + storage/presence 통합 7개 포함), `npx tsc --noEmit` clean, `npm run db:push`로 0009·0010·0011 적용 완료.
+> storage RLS(멤버 업로드/서명URL OK, 비멤버·malformed 경로 거부)와 presence 권한(멤버 SUBSCRIBED, 비멤버 CHANNEL_ERROR) 모두 자동 테스트로 검증됨.
 
 ---
 
